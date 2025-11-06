@@ -23,3 +23,5 @@ console.log(factorial(5));
 
 const factorialFuncional = (x) => (x == 1 ? x * 1 : x * factorialFuncional(x-1))
 
+console.log(factorialFuncional(5))
+

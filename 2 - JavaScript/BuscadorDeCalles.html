@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Buscador de calles</title>
+  </head>
+  <body>
+  <input id="direccionInput" placeholder="Ingresá una dirección" />
+    <div id="resultado"></div>
+
+    <script>
+      direccionInput.addEventListener('input', function() {
+        const direccion = direccionInput.value.trim();
+        if (!direccion) {
+          resultado.innerHTML = '';
+          return;
+        }
+        fetch(
+          "https://servicios.usig.buenosaires.gob.ar/normalizar/?direccion=" +
+            encodeURIComponent(direccion)
+        )
+          .then((respuesta) => respuesta.json())
+          .then((data) => {
+            const direcciones = data.direccionesNormalizadas || [];
+            const sugerenciasCABA = direcciones.filter(
+              (item) => (item.nombre_partido || "").toUpperCase() === "CABA"
+            );
+            if (sugerenciasCABA.length) {
+              resultado.innerHTML =
+                "<b>Sugerencias:</b><ul>" +
+                sugerenciasCABA
+                  .map(
+                    (item) => {
+                      let direccion = item.direccion || "(sin dirección)";
+                      direccion = direccion.replace(/,\s*CABA\s*,\s*CABA$/i, ', CABA');
+                      return `<li>${direccion}</li>`;
+                    }
+                  )
+                  .join("") +
+                "</ul>";
+            } else {
+              resultado.innerHTML = "No se encontraron sugerencias.";
+            }
+          })
+          .catch(
+            (error) => (resultado.textContent = "Error: " + error.message)
+          );
+      });
+    </script>
+  </body>
+</html>
